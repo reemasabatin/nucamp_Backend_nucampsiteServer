@@ -15,7 +15,8 @@ const campsiteRouter = require("./routes/campsiteRouter");
 const promotionRouter = require("./routes/promotionRouter");
 const partnerRouter = require("./routes/partnerRouter");
 const mongoose = require("mongoose");
-
+const passport = require("passport");
+const authenticate = require("./authenticate");
 const url = "mongodb://localhost:27017/nucampsite";
 const connect = mongoose.connect(url, {
   useCreateIndex: true,
@@ -32,7 +33,8 @@ connect.then(
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
-
+app.use(passport.initialize());
+app.use(passport.session());
 app.use("/campsites", campsiteRouter);
 app.use("/promotions", promotionRouter);
 app.use("/partners", partnerRouter);
@@ -72,20 +74,14 @@ app.use(
 );
 
 function auth(req, res, next) {
-  console.log(req.session);
+  console.log(req.user);
 
-  if (!req.session.user) {
+  if (!req.user) {
     const err = new Error("You are not authenticated!");
     err.status = 401;
     return next(err);
   } else {
-    if (req.session.user === "authenticated") {
-      return next();
-    } else {
-      const err = new Error("You are not authenticated!");
-      err.status = 401;
-      return next(err);
-    }
+    return next();
   }
 }
 
