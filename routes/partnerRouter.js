@@ -1,51 +1,97 @@
+// TASK 3
 const express = require("express");
 const partnerRouter = express.Router();
 
+// #1 Updates: For both the partnerRouter and promotionRouter, update the response to each defined endpoint using the new Partner and Promotion Models, exactly as you did with the campsiteRouter in the final two exercises this week.
+
+const Partner = require("../models/partner");
+
 partnerRouter
   .route("/")
-  .all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
+  //delete .all and .get and then change the .get to this
+  .get((req, res, next) => {
+    Partner.find()
+      .then((partners) => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(partners);
+      })
+      .catch((err) => next(err));
   })
-  .get((req, res) => {
-    res.end("Will send all the partners to you");
+
+  //add itong .post
+  .post((req, res, next) => {
+    Partner.create(req.body)
+      .then((partner) => {
+        console.log("Partner Created", partner);
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .post((req, res) => {
-    res.end(
-      `Will add the partners: ${req.body.name} with description: ${req.body.description}`
-    );
-  })
+
+  //stay lang ang .put
   .put((req, res) => {
     res.statusCode = 403;
     res.end("PUT operation not supported on /partners");
   })
-  .delete((req, res) => {
-    res.end("Deleting all partners");
+
+  //delete yung delete then change to this
+  .delete((req, res, next) => {
+    Partner.deleteMany()
+      .then((response) => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(response);
+      })
+      .catch((err) => next(err));
   });
 
 partnerRouter
   .route("/:partnerId")
-  .all((req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
+
+  // delete. all and add this .get
+  .get((req, res, next) => {
+    Partner.findById(req.params.partnerId)
+      .then((partner) => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .get((req, res) => {
-    res.end("Will send partner data to you");
-  })
-  .post((req, res) => {
+
+  // change post and put to this
+  .post((req, res, next) => {
     res.statusCode = 403;
-    res.end(
-      `Will add the partner: ${req.body.name} with description: ${req.body.description}`
-    );
+    res.end(`POST operation not supported on /partner/${req.params.partnerId}`);
   })
-  .put((req, res) => {
-    res.statusCode = 403;
-    res.end("PUT operation not supported on /partnerId");
+  .put((req, res, next) => {
+    Partner.findByIdAndUpdate(
+      req.params.partnerId,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    )
+      .then((partner) => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .delete((req, res) => {
-    res.end("Deleting partner");
+
+  //change delete
+  .delete((req, res, next) => {
+    Partner.findByIdAndDelete(req.params.partnerId)
+      .then((response) => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(response);
+      })
+      .catch((err) => next(err));
   });
 
 module.exports = partnerRouter;
