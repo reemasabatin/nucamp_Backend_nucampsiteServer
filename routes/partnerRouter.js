@@ -1,14 +1,14 @@
-// TASK 3
 const express = require("express");
+const bodyParser = require("body-parser");
+const Partner = require("../models/partner");
+const authenticate = require("../authenticate");
+
 const partnerRouter = express.Router();
 
-// #1 Updates: For both the partnerRouter and promotionRouter, update the response to each defined endpoint using the new Partner and Promotion Models, exactly as you did with the campsiteRouter in the final two exercises this week.
-
-const Partner = require("../models/partner");
+partnerRouter.use(bodyParser.json());
 
 partnerRouter
   .route("/")
-  //delete .all and .get and then change the .get to this
   .get((req, res, next) => {
     Partner.find()
       .then((partners) => {
@@ -18,9 +18,7 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-
-  //add itong .post
-  .post((req, res, next) => {
+  .post(authenticate.verifyUser, (req, res, next) => {
     Partner.create(req.body)
       .then((partner) => {
         console.log("Partner Created", partner);
@@ -30,15 +28,11 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-
-  //stay lang ang .put
-  .put((req, res) => {
+  .put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end("PUT operation not supported on /partners");
   })
-
-  //delete yung delete then change to this
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Partner.deleteMany()
       .then((response) => {
         res.statusCode = 200;
@@ -50,8 +44,6 @@ partnerRouter
 
 partnerRouter
   .route("/:partnerId")
-
-  // delete. all and add this .get
   .get((req, res, next) => {
     Partner.findById(req.params.partnerId)
       .then((partner) => {
@@ -61,13 +53,11 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-
-  // change post and put to this
-  .post((req, res, next) => {
+  .post(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /partner/${req.params.partnerId}`);
   })
-  .put((req, res, next) => {
+  .put(authenticate.verifyUser, (req, res, next) => {
     Partner.findByIdAndUpdate(
       req.params.partnerId,
       {
@@ -82,9 +72,7 @@ partnerRouter
       })
       .catch((err) => next(err));
   })
-
-  //change delete
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Partner.findByIdAndDelete(req.params.partnerId)
       .then((response) => {
         res.statusCode = 200;
