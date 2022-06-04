@@ -2,10 +2,8 @@ const express = require("express");
 const User = require("../models/user");
 const passport = require("passport");
 const authenticate = require("../authenticate");
-
 const router = express.Router();
 
-/* GET users listing. */
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
@@ -62,6 +60,20 @@ router.get("/logout", (req, res, next) => {
     res.redirect("/");
   } else {
     const err = new Error("You are not logged in!");
+    err.status = 403;
+    return next(err);
+  }
+});
+
+router.get("/users", (req, res, next) => {
+  if (req.user.admin) {
+    Users.find().then((users) => {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.json(users);
+    });
+  } else {
+    const err = new Error("You are not authorized!");
     err.status = 403;
     return next(err);
   }

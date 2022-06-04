@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 // #5 Cost: Use the mongoose-currency library's Currency type for the cost field.
-require("mongoose-currency").loadType(mongoose);
-const Currency = mongoose.Types.Currency;
+//require("mongoose-currency").loadType(mongoose);
+//const Currency = mongoose.Types.Currency;
 
 // # 2 Schema: In this file, create a new Mongoose Schema named promotionSchema. Use this sample promotion document given below as your guide:
 
@@ -35,7 +35,7 @@ const promotionSchema = new Schema(
       required: false,
     },
     cost: {
-      type: Currency,
+      type: Number,
       required: true,
       min: 0,
     },
